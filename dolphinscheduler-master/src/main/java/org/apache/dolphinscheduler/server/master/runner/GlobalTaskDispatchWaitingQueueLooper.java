@@ -21,7 +21,6 @@ import org.apache.dolphinscheduler.common.thread.BaseDaemonThread;
 import org.apache.dolphinscheduler.common.thread.ThreadUtils;
 import org.apache.dolphinscheduler.server.master.runner.dispatcher.TaskDispatchFactory;
 import org.apache.dolphinscheduler.server.master.runner.dispatcher.TaskDispatcher;
-import org.apache.dolphinscheduler.server.master.runner.execute.DefaultTaskExecuteRunnable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -79,6 +78,7 @@ public class GlobalTaskDispatchWaitingQueueLooper extends BaseDaemonThread imple
                 taskDispatcher.dispatchTask(defaultTaskExecuteRunnable);
                 DISPATCHED_TIMES.set(0);
             } catch (Exception e) {
+                defaultTaskExecuteRunnable.getTaskExecutionContext().increaseDispatchFailTimes();
                 globalTaskDispatchWaitingQueue.submitNeedToDispatchTaskExecuteRunnable(defaultTaskExecuteRunnable);
                 if (DISPATCHED_TIMES.incrementAndGet() > MAX_DISPATCHED_FAILED_TIMES) {
                     ThreadUtils.sleep(10 * 1000L);
